@@ -18,6 +18,8 @@
 - `while`과 `do-while`의 조건 검사 시점을 구분할 수 있다.
 - 반복문의 무한 반복 가능성을 발견하고 종료 조건을 확인할 수 있다.
 - `break`와 `continue`가 반복 흐름을 어떻게 바꾸는지 설명할 수 있다.
+- 중첩 반복문에서 라벨 없는 `break`가 어느 반복문을 종료하는지 설명할 수 있다.
+- 상태 변수와 라벨을 사용하여 중첩 반복문 전체를 종료하는 두 방법을 비교할 수 있다.
 - 조건문과 반복문을 조합하여 간단한 프로그램을 작성할 수 있다.
 
 ## 권장 학습 순서
@@ -37,8 +39,14 @@
 | 11 | `ForLoopV4` | 일반 `for` 문과 향상된 `for` 문 |
 | 12 | `WhileLoopV1` | `for`와 `while` 비교 |
 | 13 | `WhileLoopV2` | 무한 반복, `break`, `continue` |
-| 14 | `DoWhileLoopV1` | `while`과 `do-while` 비교 |
-| 15 | `DoWhileLoopV2` | 입력과 조건문·반복문을 조합한 프로그램 |
+| 14 | `BreakExampleV1` | 하나의 반복문을 `break`로 종료 |
+| 15 | `BreakExampleV2` | 중첩 `for` 문의 실행 구조 |
+| 16 | `BreakExampleV3` | 바깥쪽 반복문에서 실행하는 `break` |
+| 17 | `BreakExampleV4` | 상태 변수로 중첩 반복문 전체 종료 |
+| 18 | `BreakExampleV5` | 라벨이 있는 `break` |
+| 19 | `BreakExampleV6` | `continue`로 현재 회차 건너뛰기 |
+| 20 | `DoWhileLoopV1` | `while`과 `do-while` 비교 |
+| 21 | `DoWhileLoopV2` | 입력과 조건문·반복문을 조합한 프로그램 |
 
 먼저 조건에 따라 실행 경로를 선택하는 법을 익힌 뒤, 같은 작업을 반복하는 방법을 학습합니다. 마지막에는 조건문과 반복문을 함께 사용하여 숫자 맞히기 프로그램을 완성합니다.
 
@@ -57,7 +65,7 @@
 
 ```bash
 mkdir -p out/classes
-javac -encoding UTF-8 -d out/classes src/conditionalStatements/*.java src/loop/*.java
+javac -encoding UTF-8 -d out/classes src/conditionalStatements/*.java src/loop/*.java src/breakContinueExample/*.java
 ```
 
 패키지 이름과 클래스 이름을 함께 사용하여 원하는 예제를 실행합니다.
@@ -65,6 +73,7 @@ javac -encoding UTF-8 -d out/classes src/conditionalStatements/*.java src/loop/*
 ```bash
 java -cp out/classes conditionalStatements.IfStatementsV1
 java -cp out/classes loop.ForLoopV2
+java -cp out/classes breakContinueExample.BreakExampleV4
 java -cp out/classes loop.DoWhileLoopV2
 ```
 
@@ -490,7 +499,133 @@ System.out.println(count); // 홀수일 때만 도달
 - `break` 검사와 `continue` 검사의 순서를 바꾸면 `target`이 짝수일 때 어떤 문제가 생기는지 설명합니다.
 - `continue` 조건을 `count % 3 == 0`으로 바꾸어 3의 배수만 건너뜁니다.
 
-## 11. while 문과 do-while 문 비교하기
+## 11. 중첩 반복문에서 break와 continue 사용하기
+
+학습 파일:
+
+- [`src/breakContinueExample/BreakExampleV1.java`](src/breakContinueExample/BreakExampleV1.java)
+- [`src/breakContinueExample/BreakExampleV2.java`](src/breakContinueExample/BreakExampleV2.java)
+- [`src/breakContinueExample/BreakExampleV3.java`](src/breakContinueExample/BreakExampleV3.java)
+- [`src/breakContinueExample/BreakExampleV4.java`](src/breakContinueExample/BreakExampleV4.java)
+- [`src/breakContinueExample/BreakExampleV5.java`](src/breakContinueExample/BreakExampleV5.java)
+- [`src/breakContinueExample/BreakExampleV6.java`](src/breakContinueExample/BreakExampleV6.java)
+
+이 예제들은 하나의 반복문을 종료하는 기본 사용법부터 중첩 반복문의 종료 범위와 `continue`까지 단계적으로 확장합니다. 각 버전을 실행하기 전에 마지막으로 출력될 곱셈식과 `구구단을 종료합니다.`가 출력되는지를 먼저 예상해 보세요.
+
+### V1: 하나의 반복문에서 break 실행
+
+`BreakExampleV1`은 원래 1부터 10까지 실행할 `for` 문을 6에서 중단합니다.
+
+```java
+for (int count = 1; count <= 10; count++) {
+    System.out.println(count);
+
+    if (count == 6) {
+        break;
+    }
+}
+```
+
+`6`을 출력한 다음 `break`를 실행하므로 `7`부터 `10`까지는 출력되지 않습니다. 반복문 다음에 있는 문장은 계속 실행됩니다. 즉, `break`는 프로그램이나 메서드 전체를 끝내는 명령이 아닙니다.
+
+### V2: 중첩 반복문의 기준 흐름
+
+`BreakExampleV2`에는 바깥쪽과 안쪽 `for` 문이 있습니다.
+
+```java
+for (int dan = 1; dan <= 9; dan++) {
+    for (int multiplier = 1; multiplier <= 9; multiplier++) {
+        System.out.println(dan * multiplier);
+    }
+}
+```
+
+- 바깥쪽 반복문: 현재 출력할 단을 `1`부터 `9`까지 변경
+- 안쪽 반복문: 현재 단에 곱할 수를 `1`부터 `9`까지 변경
+
+바깥쪽 반복 한 번마다 안쪽 반복이 9번 실행되므로 곱셈 결과는 총 81개입니다. 이후 예제의 출력이 어디에서 끊기는지 비교하기 위한 기준 코드입니다.
+
+### V3: break가 작성된 위치로 종료 대상 확인
+
+`BreakExampleV3`의 `break`는 안쪽 반복문이 끝난 다음, 바깥쪽 반복문의 본문에 있습니다. 따라서 3단의 아홉 개 곱셈을 모두 출력한 후 바깥쪽 반복문을 종료하며 4단은 시작하지 않습니다.
+
+`if`는 `break`를 실행할 조건을 정할 뿐입니다. `break`가 `if` 문을 종료하는 것은 아니며, 자신을 감싸고 있는 반복문이나 `switch`를 종료합니다.
+
+### V4: 상태 변수로 중첩 반복문 전체 종료
+
+라벨이 없는 `break`는 자신을 감싸는 **가장 가까운 반복문 하나**만 종료합니다.
+
+```java
+boolean shouldStop = false;
+
+for (...) {
+    for (...) {
+        if (dan == 4 && multiplier == 6) {
+            shouldStop = true;
+            break; // 안쪽 for 문만 종료
+        }
+    }
+
+    if (shouldStop) {
+        break; // 바깥쪽 for 문 종료
+    }
+}
+```
+
+안쪽 반복문에서 종료 조건을 발견하면 `shouldStop`을 `true`로 바꿉니다. 첫 번째 `break`로 안쪽 반복문을 빠져나온 뒤 바깥쪽에서도 상태를 확인하고 두 번째 `break`를 실행합니다. 이 방법은 종료 조건이 발견되었다는 사실을 변수 이름으로 표현할 수 있다는 장점이 있습니다.
+
+### V5: 라벨이 있는 break로 한 번에 종료
+
+`BreakExampleV5`는 바깥쪽 반복문에 라벨을 붙입니다.
+
+```java
+outerLoop:
+for (...) {
+    for (...) {
+        if (dan == 4 && multiplier == 6) {
+            break outerLoop;
+        }
+    }
+}
+```
+
+`break outerLoop`은 현재 위치에서 `outerLoop` 라벨이 붙은 문장 전체를 즉시 종료합니다. 따라서 상태 변수와 두 번째 `break` 없이 중첩 반복문을 빠져나올 수 있습니다.
+
+| 비교 항목 | V4 상태 변수 | V5 라벨 break |
+| --- | --- | --- |
+| 안쪽 반복문의 `break` | 가장 가까운 안쪽 반복만 종료 | 지정한 바깥쪽 반복까지 종료 |
+| 종료 여부 전달 | `shouldStop` 변수 사용 | 라벨 이름 사용 |
+| 중간 정리 코드 실행 | 반복문 사이에 코드를 배치할 수 있음 | 라벨 밖으로 즉시 이동하므로 실행되지 않음 |
+| 읽기 쉬운 상황 | 종료 상태에 의미가 있거나 추가 처리가 필요할 때 | 단순히 중첩 반복을 즉시 탈출할 때 |
+
+라벨은 중첩 단계가 깊을 때 유용하지만 남용하면 실행 흐름을 따라가기 어려울 수 있습니다. 메서드 분리나 `return`이 의도를 더 분명하게 표현하는지도 함께 검토해야 합니다.
+
+### V6: continue로 현재 회차만 건너뛰기
+
+`BreakExampleV6`은 곱하는 수가 홀수일 때 `continue`를 실행합니다.
+
+```java
+if (multiplier % 2 != 0) {
+    continue;
+}
+
+System.out.println(...);
+```
+
+홀수 회차는 `continue` 아래의 출력문을 건너뛰고, `for` 문의 증감식을 거쳐 다음 회차로 이동합니다. 반복문은 종료되지 않으므로 각 단에서 `2`, `4`, `6`, `8`을 곱한 결과가 출력됩니다. 이 `continue`도 가장 가까운 안쪽 반복문에 적용되므로 바깥쪽의 다음 단으로 바로 이동하는 것은 아닙니다.
+
+### 직접 해보기
+
+- V1에서 출력문과 `if` 문의 위치를 바꾸면 숫자 `6`이 출력되는지 확인합니다.
+- V2에서 바깥쪽과 안쪽 반복문이 각각 몇 번 실행되는지 직접 표로 작성합니다.
+- V3의 `break`를 안쪽 반복문으로 옮기고 출력 범위가 어떻게 달라지는지 확인합니다.
+- V4에서 바깥쪽의 `if (shouldStop)`을 제거하면 4단 이후에 어떤 결과가 출력되는지 확인합니다.
+- V4와 V5에서 `4 * 6` 이후 출력되는 문장을 비교하고 차이가 생기는 위치를 찾습니다.
+- V5의 `break outerLoop`을 라벨 없는 `break`로 바꾸어 종료 범위를 비교합니다.
+- V6의 조건을 `multiplier % 3 == 0`으로 바꾸어 3의 배수만 건너뜁니다.
+- V6의 `continue`를 `break`로 바꾸었을 때 각 단에서 마지막으로 출력되는 곱셈식을 예상합니다.
+
+## 12. while 문과 do-while 문 비교하기
 
 학습 파일: [`src/loop/DoWhileLoopV1.java`](src/loop/DoWhileLoopV1.java)
 
@@ -521,7 +656,7 @@ do {
 - 카운터가 3보다 작을 동안 반복하도록 각 예제를 안전하게 수정합니다.
 - 사용자 입력을 최소 한 번 받아야 하는 메뉴 프로그램에는 어느 반복문이 자연스러운지 생각합니다.
 
-## 12. 제어문을 조합한 숫자 맞히기 프로그램
+## 13. 제어문을 조합한 숫자 맞히기 프로그램
 
 학습 파일: [`src/loop/DoWhileLoopV2.java`](src/loop/DoWhileLoopV2.java)
 
@@ -571,6 +706,9 @@ int answer = (int) (Math.random() * 10) + 1;
 | 배열의 모든 값을 읽음 | 향상된 `for` | 인덱스 없이 간결하게 순회 |
 | 조건을 만족하는 동안 반복 | `while` | 횟수보다 종료 조건이 중요 |
 | 본문을 최소 한 번 실행 | `do-while` | 본문 뒤에서 조건 검사 |
+| 반복 도중 전체 반복 종료 | `break` | 더 이상 반복할 필요가 없음을 표현 |
+| 현재 회차만 건너뛰기 | `continue` | 나머지 본문을 생략하고 다음 회차 진행 |
+| 중첩 반복 전체를 즉시 종료 | 상태 변수 또는 라벨 `break` | 추가 처리 필요 여부에 따라 선택 |
 
 이 표는 절대적인 규칙이 아닙니다. 같은 동작을 여러 문법으로 만들 수 있으므로, 의도를 가장 분명하게 보여 주고 실수를 줄이는 구조를 선택하는 것이 중요합니다.
 
@@ -591,6 +729,10 @@ int answer = (int) (Math.random() * 10) + 1;
 ### break 누락
 
 전통적인 `switch`에서 `break`를 빠뜨리면 다음 `case`까지 실행됩니다. 의도적인 fall-through라면 주석으로 이유를 밝혀 두는 것이 좋습니다.
+
+### 중첩 반복문에서 break 범위 착각
+
+라벨이 없는 `break`는 가장 가까운 반복문 하나만 종료합니다. 안쪽 반복문에서 `break`를 실행한 뒤 바깥쪽 반복도 끝날 것이라고 생각하면 이후 단이나 데이터가 계속 처리될 수 있습니다. 상태 변수를 바깥쪽에서 다시 확인하거나, 의도가 분명한 경우 라벨이 있는 `break`를 사용하세요.
 
 ### 반복 변수의 잘못된 시작값·종료 조건
 
@@ -641,10 +783,16 @@ int answer = (int) (Math.random() * 10) + 1;
 18. `while` 문에서 반복 변수의 변경을 빠뜨리면 어떤 문제가 생길 수 있나요?
 19. `break`와 `continue`는 반복문에 각각 어떤 영향을 주나요?
 20. `continue` 전에 상태 변경이 필요한 이유는 무엇인가요?
-21. 조건이 처음부터 `false`일 때 `while`과 `do-while`의 실행 횟수는 어떻게 다른가요?
-22. `do-while` 문 끝에 세미콜론이 필요한 위치는 어디인가요?
-23. `(int) (Math.random() * 10) + 1`이 만드는 정수 범위는 무엇인가요?
-24. `Scanner.hasNextInt()`를 먼저 확인하는 이유는 무엇인가요?
-25. 경계값 오류를 찾기 위해 어떤 입력들을 시험해야 하나요?
+21. 중첩 반복문 안에서 라벨 없는 `break`는 어느 반복문을 종료하나요?
+22. `if` 문 안에서 실행한 `break`가 `if` 문이 아니라 반복문을 종료하는 이유는 무엇인가요?
+23. `BreakExampleV3`에서 3단의 모든 곱셈이 출력되는 이유는 무엇인가요?
+24. 상태 변수로 중첩 반복문 전체를 종료하려면 안쪽과 바깥쪽에서 각각 무엇을 해야 하나요?
+25. 라벨이 있는 `break`를 사용하면 상태 변수 방식과 비교해 실행 흐름이 어떻게 달라지나요?
+26. `BreakExampleV6`에서 홀수 곱셈식만 출력되지 않는 이유는 무엇인가요?
+27. 조건이 처음부터 `false`일 때 `while`과 `do-while`의 실행 횟수는 어떻게 다른가요?
+28. `do-while` 문 끝에 세미콜론이 필요한 위치는 어디인가요?
+29. `(int) (Math.random() * 10) + 1`이 만드는 정수 범위는 무엇인가요?
+30. `Scanner.hasNextInt()`를 먼저 확인하는 이유는 무엇인가요?
+31. 경계값 오류를 찾기 위해 어떤 입력들을 시험해야 하나요?
 
 답하기 어려운 질문이 있다면 해당 예제로 돌아가 변수 값을 작게 바꾸고, 실행 순서를 한 줄씩 종이에 추적해 보세요.
